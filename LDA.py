@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 from IPython.display import display
 
+topic_N = 15
 
 def delete_one_time(words_list):
     frequency = defaultdict(int)
@@ -62,7 +63,6 @@ def coherence(corpus, dict):
 
 
 def specified_number(corpus, dict):
-    topic_N = 10
     lda = gensim.models.ldamodel.LdaModel(corpus=corpus, num_topics=topic_N, id2word=dict)
     lda.save('tmp/lda.model')
 
@@ -93,7 +93,8 @@ def noun():
 
         for row in cursor1:
             if row[1] == '名詞' and len(row[0]) > 1 and not row[0].isdigit():
-                word_list.append(row[0])
+                if row[0] != 'こと' and row[0] != 'ため' and row[0] != 'さん' and row[0] != 'これ' and row[0] != 'よう' and row[0] != 'None':
+                    word_list.append(row[0])
         word_lists.append(word_list)
 
     dict = make_dict(delete_one_time(word_lists))
@@ -128,12 +129,34 @@ def test_data(lda, dict):
 if __name__ == '__main__':
     connection = MySQLdb.connect(host='127.0.0.1', port=3306, user='root', passwd=os.environ['MYSQLPASS'],
                                  db='research', charset='utf8')
-    print('Use Existing Model? (y or n)')
-    i = input()
-    if i == 'n':
-        lda = noun()
-    else:
-        lda = gensim.models.LdaModel.load('tmp/lda.model'), gensim.corpora.Dictionary.load('tmp/deerwester.dict')
+    while True:
+        print('Use Existing Model? (y or n)')
+        i = input()
+        if i == 'n':
+            while True:
+                print('Create New Model? (y or n)')
+                j = input()
+                if j == 'n':
+                    break
+                elif j == 'y':
+                    lda = noun()
+                    break
+                else:
+                    print('Type y or n \n')
+        elif i == 'y':
+            lda = gensim.models.LdaModel.load('tmp/lda.model'), gensim.corpora.Dictionary.load('tmp/deerwester.dict')
+            break
+        else:
+            print('Type y or n \n')
+
+            # 既存モデルのトピック表示
+            # for i in range(topic_N):
+            #     print("\n")
+            #     print("=" * 80)
+            #     print("TOPIC {0}\n".format(i))
+            #     topic = lda[0].show_topic(i)
+            #     for t in topic:
+            #         print("{0:20s}{1}".format(t[0], t[1]))
 
     connection.close()
     while True:
