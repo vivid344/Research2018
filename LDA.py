@@ -133,7 +133,7 @@ if __name__ == '__main__':
     if i == 'n':
         lda = noun()
     else:
-        lda = gensim.models.LdaModel.load('tmp/lda.model')
+        lda = gensim.models.LdaModel.load('tmp/lda.model'), gensim.corpora.Dictionary.load('tmp/deerwester.dict')
 
     connection.close()
     while True:
