@@ -32,9 +32,8 @@ def make_corpus(dict, word_list):
     return make_lda(corpus, dict)
 
 
-def make_lda(corpus, dict):
+def coherence(corpus, dict):
     lda = None
-
     # コヒーレンス描画のための初期化
     output_list = pd.DataFrame(columns=["y", "x"])
     plt.ion()
@@ -59,14 +58,28 @@ def make_lda(corpus, dict):
         fig.set_size_inches(8, 8)
         display(fig)
 
-        # for i in range(topic_N):
-        #     print("\n")
-        #     print("=" * 80)
-        #     print("TOPIC {0}\n".format(i))
-        #     topic = lda.show_topic(i)
-        #     for t in topic:
-        #         print("{0:20s}{1}".format(t[0], t[1]))
+    return lda
 
+
+def specified_number(corpus, dict):
+    topic_N = 10
+    lda = gensim.models.ldamodel.LdaModel(corpus=corpus, num_topics=topic_N, id2word=dict)
+    lda.save('tmp/lda.model')
+
+    for i in range(topic_N):
+        print("\n")
+        print("=" * 80)
+        print("TOPIC {0}\n".format(i))
+        topic = lda.show_topic(i)
+        for t in topic:
+            print("{0:20s}{1}".format(t[0], t[1]))
+
+    return lda
+
+
+def make_lda(corpus, dict):
+    lda = specified_number(corpus, dict)
+    # lda = coherence(corpus, dict)
     return lda
 
 
@@ -79,7 +92,7 @@ def noun():
         cursor1.execute(select_sql, (i,))
 
         for row in cursor1:
-            if row[1] == '名詞' and len(row[0]) > 1:
+            if row[1] == '名詞' and len(row[0]) > 1 and not row[0].isdigit():
                 word_list.append(row[0])
         word_lists.append(word_list)
 
@@ -115,9 +128,15 @@ def test_data(lda, dict):
 if __name__ == '__main__':
     connection = MySQLdb.connect(host='127.0.0.1', port=3306, user='root', passwd=os.environ['MYSQLPASS'],
                                  db='research', charset='utf8')
-    lda = noun()
+    print('Use Existing Model? (y or n)')
+    i = input()
+    if i == 'n':
+        lda = noun()
+    else:
+        lda = gensim.models.LdaModel.load('tmp/lda.model')
+
+    connection.close()
     while True:
         test_data(lda[0], lda[1])
 
-    connection.close()
 
