@@ -67,8 +67,8 @@ def get_news_text(url):
 def get_news_data():
     base_url = 'https://news.yahoo.co.jp/list/?p='
 
-    # とりあえず最新の10P分
-    for i in range(1, 21):
+    # とりあえず最新の10P分 rangeの値で取得件数を変更できる
+    for i in range(1, 3):
         response_base = requests.get(base_url + str(i))
         response_base.encoding = 'UTF-8'
         response_bs = BeautifulSoup(response_base.content, 'lxml')

@@ -108,3 +108,7 @@ venv.bak/
 
 # Mac
 .DS_Store
+
+# This Project
+/tmp/
+*.png

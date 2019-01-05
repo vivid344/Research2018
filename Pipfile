@@ -16,6 +16,7 @@ gensim = "*"
 pandas = "*"
 matplotlib = "*"
 ipython = "*"
+japanize-matplotlib = "*"
 
 [dev-packages]
 
